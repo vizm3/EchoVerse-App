@@ -1,0 +1,10 @@
+streamlit
+transformers
+torch
+sentencepiece
+gtts
+huggingface-hub
+SpeechRecognition
+PyAudio
+accelerate
+streamlit-mic-recorder
