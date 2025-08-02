@@ -6,5 +6,7 @@ gtts
 huggingface-hub
 SpeechRecognition
 PyAudio
+PyPDF2
+python-docx
 accelerate
 streamlit-mic-recorder
