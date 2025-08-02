@@ -10,6 +10,8 @@ import wave # Import the wave library
 import base64
 import requests
 from streamlit_lottie import st_lottie
+import PyPDF2
+import docx
 
 def get_base64_bg(file_path):
     with open(file_path, "rb") as f:
@@ -112,6 +114,22 @@ def gradient_title(text):
         text-align: center;
     ">{text}</h2>
     """, unsafe_allow_html=True)
+    
+    # --- Text Extraction Functions ---
+def extract_text_from_pdf(file):
+    pdf_reader = PyPDF2.PdfReader(file)
+    text = ""
+    for page in pdf_reader.pages:
+        text += page.extract_text()
+    return text
+
+def extract_text_from_docx(file):
+    doc = docx.Document(file)
+    text = ""
+    for para in doc.paragraphs:
+        text += para.text + "\n"
+    return text
+
 
 def transcribe_audio_from_wav(audio_bytes, sample_rate, sample_width):
     """
@@ -149,7 +167,7 @@ def main():
     """
     Main function to run the EchoVerse Streamlit application.
     """
-    st.set_page_config(page_title="EchoVerse", page_icon="🎙️", layout="wide")
+    st.set_page_config(page_title="EchoVerse", page_icon="🎙", layout="wide")
     
     st.markdown("""
 <div style="text-align: center; padding: 20px 0;">
@@ -180,7 +198,7 @@ def main():
         os.environ['HUGGING_FACE_HUB_TOKEN'] = hf_token
     except (KeyError, FileNotFoundError):
         st.error("Hugging Face token not found! Please add it to your secrets file.")
-        st.info("Create a file at `.streamlit/secrets.toml` and add your token: \n\nHUGGINGFACE_TOKEN = 'hf_YourTokenGoesHere'")
+        st.info("Create a file at .streamlit/secrets.toml and add your token: \n\nHUGGINGFACE_TOKEN = 'hf_YourTokenGoesHere'")
         st.stop()
 
     with st.sidebar:
@@ -220,24 +238,26 @@ def main():
             sample_rate = audio_info['sample_rate']
             sample_width = audio_info['sample_width'] // 8 # Convert bits to bytes
             
-            # **FIX:** Pass all necessary info to the new WAV-based transcription function
+            # FIX: Pass all necessary info to the new WAV-based transcription function
             transcribed_text = transcribe_audio_from_wav(audio_bytes, sample_rate, sample_width)
             if transcribed_text:
                 st.session_state.text_input = transcribed_text
 
-    uploaded_file = st.file_uploader("Upload a .txt file", type="txt")
-    text_input_area = st.text_area("Or paste your text here", value=st.session_state.text_input, height=250, key="text_area_input")
+    uploaded_file = st.file_uploader(" ", type=["txt", "pdf", "docx"], label_visibility="collapsed")
+    if uploaded_file:
+                file_ext = uploaded_file.name.split('.')[-1].lower()
+                if file_ext == "txt":
+                    st.session_state.text_input = uploaded_file.getvalue().decode("utf-8")
+                elif file_ext == "pdf":
+                    st.session_state.text_input = extract_text_from_pdf(uploaded_file)
+                elif file_ext == "docx":
+                    st.session_state.text_input = extract_text_from_docx(uploaded_file)
 
-    if text_input_area:
-        st.session_state.text_input = text_input_area
 
-    original_text = ""
-    if uploaded_file is not None:
-        original_text = uploaded_file.getvalue().decode("utf-8")
-        st.text_area("Uploaded Text", original_text, height=250, disabled=True)
-        st.session_state.text_input = original_text
-    else:
-        original_text = st.session_state.text_input
+    st.text_area("Or paste your text here:", value=st.session_state.text_input, height=200, key="text_area_input")
+    
+    st.session_state.text_input = st.session_state.text_area_input
+    original_text = st.session_state.text_input
     st.markdown('</div>', unsafe_allow_html=True)
 
     if generate_button and original_text:
@@ -279,5 +299,5 @@ def main():
     elif generate_button and not original_text:
         st.error("Please provide some text first.")
 
-if __name__ == "__main__":
+if _name_ == "_main_":
     main()
