@@ -26,8 +26,7 @@ Hugging Face Access Token: You will need a read-access token to download the IBM
 2. Clone the Repository
 Open your terminal or command prompt and run the following command to clone the project to your local machine:
 
-Bash
-
+Bash:
 git clone https://github.com/vizm3/EchoVerse-App.git
 cd EchoVerse-App
 3. Set Up the Environment
@@ -46,20 +45,15 @@ You must set your Hugging Face Access Token as an environment variable for the a
 
 Windows (Command Prompt):
 
-Bash
-
-set HUGGING_FACE_HUB_TOKEN="your_token_here"
+Bash: set HUGGING_FACE_HUB_TOKEN="your_token_here"
 macOS / Linux (Terminal):
 
-Bash
-
+Bash: 
 export HUGGING_FACE_HUB_TOKEN="your_token_here"
 5. Run the Application
 With your environment active and credentials set, you can now launch the application.
 
-Bash
-
-streamlit run app.py
+Bash: streamlit run app.py
 This command will start a local web server and open the EchoVerse application in your default web browser at http://localhost:8501.
 
 🗂️ Project Structure
@@ -74,4 +68,5 @@ tts_handler.py: Manages the text-to-speech conversion using the gTTS library.
 requirements.txt: A list of all necessary Python libraries for the project.
 
 🤝 Contributing
+
 We welcome contributions! If you would like to contribute, please feel free to fork the repository and submit a pull request.
